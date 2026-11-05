@@ -1,0 +1,101 @@
+diff --git a/src/HexEditorApp.cpp b/src/HexEditorApp.cpp
+index f3d3edd..766b398 100644
+--- a/src/HexEditorApp.cpp
++++ b/src/HexEditorApp.cpp
+@@ -56,6 +56,7 @@ void wxHexEditorApp::OnHelp(wxCommandEvent& evt)
+ }
+ #endif
+ 
++#if wxUSE_IPC
+ class MyClient: public wxClient {
+ 	public:
+ 		void Connect(const wxString& sHost, const wxString& sService, const wxString& sTopic);
+@@ -66,6 +67,7 @@ void MyClient::Connect(const wxString& sHost, const wxString& sService, const wx
+ 	//m_connection->Disconnect();
+ 	MakeConnection(sHost, sService, sTopic);
+ 	}
++#endif // wxUSE_IPC
+ 
+ #include <wx/snglinst.h>
+ #include <wx/stdpaths.h>
+@@ -110,6 +112,7 @@ bool wxHexEditorApp::OnInit() {
+ 	SetLanguage();
+ 	bool SingleInstance;
+ 	myConfigBase::Get()->Read( _T("SingleInstance"), &SingleInstance, false );
++#if wxUSE_IPC
+ 	if( SingleInstance ) {
+ 		wxSingleInstanceChecker* m_checker = new wxSingleInstanceChecker;
+ 		if ( m_checker->IsAnotherRunning() ) {
+@@ -125,6 +128,7 @@ bool wxHexEditorApp::OnInit() {
+ 			Exit();
+ 			}
+ 		}
++#endif // wxUSE_IPC
+ 
+ 	frame = new HexEditorFrame( 0L );
+ 	// frame->Connect( wxEVT_MOTION,	wxMouseEventHandler(wxHexEditorApp::OnMouseMove),NULL, this);
+diff --git a/src/HexEditorFrame.cpp b/src/HexEditorFrame.cpp
+index 04c8f82..2f5523c 100644
+--- a/src/HexEditorFrame.cpp
++++ b/src/HexEditorFrame.cpp
+@@ -230,8 +230,12 @@ HexEditorFrame::HexEditorFrame( wxWindow* parent,int id ):
+ 			}
+ 		}
+ 
++#if wxUSE_IPC
+ 	m_server = new IPCServer(this);
+ 	m_server->Create("59147"); //Just random number
++#else
++	m_server = NULL;
++#endif
+ 	}
+ 
+ HexEditorFrame::~HexEditorFrame() {
+@@ -1327,6 +1331,7 @@ bool DnDFile::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames)
+ 
+ VersionChecker::VersionChecker( wxString _url, wxString _version, wxWindow *parent, wxWindowID id )
+ 	:UpdateDialogGui( parent, id ) {
++#if wxUSE_URL
+ 	wxURL url( _url );
+ 	if (url.IsOk()) {
+ 		url.GetProtocol().SetTimeout(3);
+@@ -1349,12 +1354,14 @@ VersionChecker::VersionChecker( wxString _url, wxString _version, wxWindow *pare
+ 		delete [] bfr;
+ 		delete in_stream;
+ 		}
++#endif // wxUSE_URL
+ 	}
+ 
+ void VersionChecker::OnChkDisplay( wxCommandEvent& event ) {
+ 	myConfigBase::Get()->Write( _T("UpdateCheck"), !wxchk_display->GetValue());
+ 	}
+ 
++#if wxUSE_IPC
+ wxConnectionBase *IPCServer::OnAcceptConnection(const wxString& topic) {
+ 	if ( topic.StartsWith("OPEN FILE:")) {
+ 		wxFileName a(topic.substr(10));
+@@ -1362,3 +1369,4 @@ wxConnectionBase *IPCServer::OnAcceptConnection(const wxString& topic) {
+ 		}
+ 	return NULL;
+ 	}
++#endif // wxUSE_IPC
+diff --git a/src/HexEditorFrame.h b/src/HexEditorFrame.h
+index 396555a..c242cc3 100644
+--- a/src/HexEditorFrame.h
++++ b/src/HexEditorFrame.h
+@@ -145,6 +145,7 @@ class VersionChecker : public UpdateDialogGui {
+ 	};
+ 
+ #include <wx/ipc.h>
++#if wxUSE_IPC
+ //For open files with wxHexEditor mime
+ class IPCServer : public wxServer {
+ 	public:
+@@ -153,6 +154,7 @@ class IPCServer : public wxServer {
+ 	private:
+ 		HexEditorFrame *parent;
+ 	};
++#endif // wxUSE_IPC
+ 
+ class copy_maker {
+ 	public:
