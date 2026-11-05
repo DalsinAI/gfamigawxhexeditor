@@ -4,9 +4,9 @@
 WXHE_GIT=https://github.com/EUA/wxHexEditor.git
 WXHE_COMMIT=f439d8f3bfbccbf7f7ec587b548a7d7421978b2f
 # Our own pieces, fetched at these commits
-# GFOpenWX Toolkit with wx's aui library (branch team3/wx-aui-20261105)
+# GFOpenWX Toolkit with wx's aui, pickers and doc/view (branch team3/wx-libraries-20261105, PR #3)
 WXT_REPO=https://github.com/DalsinAI/gfopenwxtoolkit
-WXT_COMMIT=003296ab3780760e61cd1217d22e568bd11d3add
+WXT_COMMIT=b4e7063b10dc52f0deb417d5f647ffacdad327a5
 # fpuauto (common/fpuauto): the FPU when there is one (branch team3/fpuauto-20261105)
 FPA_REPO=https://github.com/DalsinAI/amicradle-guest
 FPA_COMMIT=4a784c84b878fe0e9abade7006e67e1ded9b165c
