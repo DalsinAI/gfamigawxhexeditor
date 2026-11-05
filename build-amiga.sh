@@ -73,7 +73,7 @@ if [ "$(cat "$SRC/.patched" 2>/dev/null)" != "$WXHE_COMMIT-$PSUM" ]; then
         patch -s -d "$SRC" -p1 < "$p" || { echo "patch failed: $p"; exit 1; }
     done
     # udis86's opcode tables, made on the build host as its own build does
-    python3 -I "$SRC/udis86/scripts/ud_itab.py" "$SRC/udis86/docs/x86/optable.xml" "$SRC/udis86/libudis86" > /dev/null
+    python3 -E -s "$SRC/udis86/scripts/ud_itab.py" "$SRC/udis86/docs/x86/optable.xml" "$SRC/udis86/libudis86" > /dev/null
     echo "$WXHE_COMMIT-$PSUM" > "$SRC/.patched"
     rm -rf "$WORK/obj"
 fi
