@@ -15,7 +15,7 @@ STOVE=${STOVE:-"$HOME/AmiCradle/stoves/os32-gcc16-open6"}
 # outside the checkout: Cradle cleans it (git clean -ffdx) before every job
 WORK="${WORK:-$HOME/.cache/gfamigawxhexeditor/build}"; OUT="${OUT:-$WORK/out}"; JOBS=${JOBS:-12}
 TC="$STOVE/prefix"; PATH="$TC/bin:$PATH"; export PATH
-mkdir -p "$WORK/deps" "$OUT"; OUT=$(cd "$OUT" \&\& pwd)
+mkdir -p "$WORK/deps" "$OUT"; OUT=$(cd "$OUT" && pwd)
 t0=$(date +%s)
 
 # a repository at one commit, fetched once (SPARSE: only those folders)
