@@ -1,0 +1,17 @@
+diff --git a/src/HexEditorFrame.cpp b/src/HexEditorFrame.cpp
+index 2f5523c..d4f1808 100644
+--- a/src/HexEditorFrame.cpp
++++ b/src/HexEditorFrame.cpp
+@@ -217,7 +217,12 @@ HexEditorFrame::HexEditorFrame( wxWindow* parent,int id ):
+ #endif
+ 		myConfigBase::Get()->Write( _T("UpdateCheck"), update_enable );
+ 		//First Run!
++#ifdef __WXOPENLAYOUT__
++		// AmigaOS: once the window is up, not from inside the constructor
++		CallAfter( [this]{ wxMessageBox( license, _("License Agreement"), wxOK, this ); } );
++#else
+ 		wxMessageBox( license, _("License Agreement"));
++#endif
+ 		}
+ 
+ 
