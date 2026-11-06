@@ -1,0 +1,138 @@
+diff --git a/src/FAL.cpp b/src/FAL.cpp
+index 73eb0c9..f6cde9d 100644
+--- a/src/FAL.cpp
++++ b/src/FAL.cpp
+@@ -28,9 +28,16 @@
+ #include "FAL.h"
+ #include <wx/arrimpl.cpp>
+ 
+-#ifndef __WXMSW__
++#if !defined(__WXMSW__) && !defined(__WXOPENLAYOUT__)
+ 	#include <sys/ptrace.h> //No ptrace at windows
+ #endif
++#ifdef __WXOPENLAYOUT__
++	// AmigaOS has no ptrace: process memory is never opened there (see
++	// OSDependedOpen), so these block reads and writes are never reached
++	#define PTRACE_PEEKTEXT 1
++	#define PTRACE_POKETEXT 4
++	static inline long ptrace(int, int, void*, long){ return -1; }
++#endif
+ 
+ #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+ #include <sys/param.h> //defines BSD
+@@ -327,6 +334,26 @@ bool FAL::OSDependedOpen(wxFileName& myfilename, FileAccessMode FAM, unsigned Fo
+ 	return FALOpen(myfilename, FAM, ForceBlockRW);
+ 	}
+ 
++#elif defined( __WXOPENLAYOUT__ )
++// AmigaOS: files only. There is no ptrace, so no process memory, and a
++// file the program may not read is not owned by another user.
++bool FAL::OSDependedOpen(wxFileName& myfilename, FileAccessMode FAM, unsigned ForceBlockRW){
++	if(myfilename.GetFullPath().Lower().StartsWith( wxT("-pid="))){
++		wxMessageBox( _("Process memory cannot be opened on AmigaOS."),_("Error"), wxOK|wxICON_ERROR );
++		return false;
++		}
++	if( !myfilename.FileExists() ){
++		wxMessageBox(wxString(_("File does not exists at path:"))+wxT("\n")+myfilename.GetFullPath(),_("Error"), wxOK|wxICON_ERROR);
++		return false;
++		}
++	if( !myfilename.IsFileReadable() ){
++		wxMessageBox(wxString(_("File is not readable by permissions."))+wxT("\n")+myfilename.GetFullPath(),_("Error"), wxOK|wxICON_ERROR );
++		return false;
++		}
++	FileType=FAL_File;
++	return FALOpen(myfilename, FAM, ForceBlockRW);
++	}
++
+ #elif defined( __WXOSX__ )
+ bool FAL::OSDependedOpen(wxFileName& myfilename, FileAccessMode FAM, unsigned ForceBlockRW){
+ 	//Handling Memory Process Debugging Here
+@@ -389,6 +416,8 @@ bool FAL::Close(){
+ 	if( ProcessID >=0 )
+ 	#ifdef __WXMSW__
+ 		CloseHandle(hDevice);
++	#elif defined(__WXOPENLAYOUT__)
++		return false;
+ 	 #else
+ 		return ((ptrace(PTRACE_DETACH, ProcessID, NULL, 0)) >= 0 );
+ 	#endif
+diff --git a/src/HexDialogs.cpp b/src/HexDialogs.cpp
+index 80af2da..c17f1a9 100644
+--- a/src/HexDialogs.cpp
++++ b/src/HexDialogs.cpp
+@@ -26,6 +26,7 @@
+ #include <wx/progdlg.h>
+ #include <wx/filepicker.h>
+ #include "../mhash/include/mhash.h"
++#include <vector>
+ 
+ #ifdef __SSE2__
+ #include <emmintrin.h>
+@@ -2355,7 +2356,13 @@ bool CompareDialog::Compare( wxFileName fl1, wxFileName fl2, bool SearchForDiff,
+ 	unsigned read_speed=0;
+ 
+ 
++#ifdef __WXOPENLAYOUT__
++	// 8 MB is far beyond an Amiga stack: the same buffer, on the heap
++	std::vector<int64_t> diffVector(1*MB);
++	int64_t *diffBuff = diffVector.data(); //up to 500K differences.
++#else
+ 	int64_t diffBuff[1*MB]; //up to 500K differences.
++#endif
+ 	//Structure is : even indices for difference start offset, odd indices for end offsets
+ 	int diffHit = 0;
+ 	bool diff=false;
+diff --git a/src/HexEditorApp.cpp b/src/HexEditorApp.cpp
+index 759fefb..f3d3edd 100644
+--- a/src/HexEditorApp.cpp
++++ b/src/HexEditorApp.cpp
+@@ -69,7 +69,7 @@ void MyClient::Connect(const wxString& sHost, const wxString& sService, const wx
+ 
+ #include <wx/snglinst.h>
+ #include <wx/stdpaths.h>
+-#if !defined(__MINGW32__)
++#if !defined(__MINGW32__) && !defined(__WXOPENLAYOUT__)
+ #include <sys/resource.h>
+ #endif
+ #include <wx/cmdline.h>
+@@ -305,7 +305,10 @@ bool kMGT_ToUInt( wxString user_input, uint64_t *size ){
+ 	return false;
+ 	}
+ 
+-#ifndef __WXMSW__
++#if defined(__WXOPENLAYOUT__)
++// AmigaOS: the stack is the program's own (__stack, set at link time)
++void SetStackLimit(void){}
++#elif !defined(__WXMSW__)
+ #include <sys/resource.h>
+ void SetStackLimit(void){
+ 	const rlim_t kStackSize = 32L * 1024L * 1024L;
+diff --git a/src/HexEditorApp.h b/src/HexEditorApp.h
+index b56327b..8118de5 100644
+--- a/src/HexEditorApp.h
++++ b/src/HexEditorApp.h
+@@ -42,6 +42,8 @@
+ 	#define _VERSION_STR_ _VERSION_S_ " for Windows"
+ 	#elif defined(__WXOSX__)
+ 	#define _VERSION_STR_ _VERSION_S_ " for Mac"
++	#elif defined(__WXOPENLAYOUT__)
++	#define _VERSION_STR_ _VERSION_S_ " for AmigaOS"
+ 	#elif defined(__WXGTK__) && defined(__linux__)
+ 	#define _VERSION_STR_ _VERSION_S_ " for Linux"
+ 	#elif defined(__WXGTK__) && defined(BSD)
+diff --git a/src/HexEditorFrame.cpp b/src/HexEditorFrame.cpp
+index 2a49b7b..04c8f82 100644
+--- a/src/HexEditorFrame.cpp
++++ b/src/HexEditorFrame.cpp
+@@ -210,7 +210,11 @@ HexEditorFrame::HexEditorFrame( wxWindow* parent,int id ):
+ 
+ 	bool update_enable = false;
+ 	if ( !myConfigBase::Get()->Read(_T("UpdateCheck"), &update_enable )) {
++#ifdef __WXOPENLAYOUT__
++		update_enable = false;	// AmigaOS: no network contact unless asked for
++#else
+ 		update_enable = true;
++#endif
+ 		myConfigBase::Get()->Write( _T("UpdateCheck"), update_enable );
+ 		//First Run!
+ 		wxMessageBox( license, _("License Agreement"));

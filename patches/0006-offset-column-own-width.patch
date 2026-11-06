@@ -1,0 +1,18 @@
+diff --git a/src/HexEditorCtrl/HexEditorCtrl.cpp b/src/HexEditorCtrl/HexEditorCtrl.cpp
+index 74f95b4..beb7e56 100644
+--- a/src/HexEditorCtrl/HexEditorCtrl.cpp
++++ b/src/HexEditorCtrl/HexEditorCtrl.cpp
+@@ -641,7 +641,13 @@ void HexEditorCtrl::OnResize( wxSizeEvent &event ) {
+ 	fgSizer1->Add( m_static_address, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxLEFT, 2 );
+ 	fgSizer1->Add( m_static_byteview, 0, wxALIGN_CENTER|wxALL, 0 );
+ 	fgSizer1->Add( m_static_null, 0, wxALIGN_CENTER, 3 );
++#ifdef __WXOPENLAYOUT__
++	// AmigaOS: the labels above may draw in a wider font than the digits, so
++	// the offsets keep their own width rather than stretching to the label's
++	fgSizer1->Add( offset_ctrl, 0, wxALIGN_LEFT|wxALL, 0 );
++#else
+ 	fgSizer1->Add( offset_ctrl, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 0 );
++#endif
+ 	fgSizer1->Add( hex_ctrl, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 0 );
+ 	fgSizer1->Add( text_ctrl, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 0 );
+ 	fgSizer1->Add( offset_scroll_real, 0, wxEXPAND, 0 );

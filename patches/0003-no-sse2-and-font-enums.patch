@@ -1,0 +1,61 @@
+diff --git a/src/HexDialogs.cpp b/src/HexDialogs.cpp
+index c17f1a9..527813f 100644
+--- a/src/HexDialogs.cpp
++++ b/src/HexDialogs.cpp
+@@ -1312,7 +1312,11 @@ void FindDialog::OnFindAll( bool internal ) {
+ //Returns indice of first found if used with (  options & SEARCH_FINDALL) ret_ptr return vector pointer filled with locations at buffer
+ //WARNING! THIS FUNCTION WILL CHANGE BFR and/or SEARCH strings if SEARCH_MATCHCASE not selected as an option!
+ inline int FindDialog::SearchAtBuffer( char *bfr, int bfr_size, char* search, int search_size, unsigned options, std::vector<int> *ret_ptr ) {
++#ifdef __SSE2__
+ 	static const int REG_SZ = sizeof(__m128i);
++#else
++	static const int REG_SZ = 16;	// the SSE2 register's size, for the same buffer padding
++#endif
+ 
+ 	char internal_array[REG_SZ];
+ 
+diff --git a/src/HexEditorCtrl/HexEditorCtrlGui.cpp b/src/HexEditorCtrl/HexEditorCtrlGui.cpp
+index e788233..ecf71b4 100644
+--- a/src/HexEditorCtrl/HexEditorCtrlGui.cpp
++++ b/src/HexEditorCtrl/HexEditorCtrlGui.cpp
+@@ -32,19 +32,19 @@ HexEditorCtrlGui::HexEditorCtrlGui( wxWindow* parent, wxWindowID id, const wxPoi
+ 	
+ 	m_static_offset = new wxStaticText( this, ID_DEFAULT, _("Offset"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE );
+ 	m_static_offset->Wrap( -1 );
+-	m_static_offset->SetFont( wxFont( 10, 70, 90, 90, false, wxT("sans") ) );
++	m_static_offset->SetFont( wxFont( 10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("sans") ) );
+ 	
+ 	fgSizerMain->Add( m_static_offset, 1, wxALIGN_CENTER_HORIZONTAL|wxALL, 0 );
+ 	
+ 	m_static_address = new wxStaticText( this, ID_DEFAULT, _("Address"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT );
+ 	m_static_address->Wrap( -1 );
+-	m_static_address->SetFont( wxFont( 10, 70, 90, 90, false, wxT("sans") ) );
++	m_static_address->SetFont( wxFont( 10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("sans") ) );
+ 	
+ 	fgSizerMain->Add( m_static_address, 1, wxALIGN_CENTER_HORIZONTAL|wxLEFT, 2 );
+ 	
+ 	m_static_byteview = new wxStaticText( this, ID_DEFAULT, _("Byte View"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE );
+ 	m_static_byteview->Wrap( -1 );
+-	m_static_byteview->SetFont( wxFont( 10, 70, 90, 90, false, wxT("sans") ) );
++	m_static_byteview->SetFont( wxFont( 10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("sans") ) );
+ 	
+ 	fgSizerMain->Add( m_static_byteview, 1, wxALIGN_CENTER_HORIZONTAL|wxALL, 0 );
+ 	
+@@ -53,7 +53,7 @@ HexEditorCtrlGui::HexEditorCtrlGui( wxWindow* parent, wxWindowID id, const wxPoi
+ 	fgSizerMain->Add( m_static_null, 0, 0, 5 );
+ 	
+ 	offset_ctrl = new wxHexOffsetCtrl( this, ID_DEFAULT, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+-	offset_ctrl->SetFont( wxFont( 10, 70, 90, 90, false, wxT("sans") ) );
++	offset_ctrl->SetFont( wxFont( 10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("sans") ) );
+ 	offset_ctrl->SetMinSize( wxSize( 104,100 ) );
+ 	
+ 	fgSizerMain->Add( offset_ctrl, 1, wxEXPAND|wxLEFT, 0 );
+@@ -64,7 +64,7 @@ HexEditorCtrlGui::HexEditorCtrlGui( wxWindow* parent, wxWindowID id, const wxPoi
+ 	fgSizerMain->Add( hex_ctrl, 1, wxEXPAND, 2 );
+ 	
+ 	text_ctrl = new wxHexTextCtrl( this, ID_TEXTBOX, wxEmptyString, wxDefaultPosition, wxSize( -1,-1 ), 0 );
+-	text_ctrl->SetFont( wxFont( 10, 70, 90, 90, false, wxT("sans") ) );
++	text_ctrl->SetFont( wxFont( 10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("sans") ) );
+ 	text_ctrl->SetMinSize( wxSize( 45,100 ) );
+ 	
+ 	fgSizerMain->Add( text_ctrl, 1, wxRIGHT|wxEXPAND, 2 );

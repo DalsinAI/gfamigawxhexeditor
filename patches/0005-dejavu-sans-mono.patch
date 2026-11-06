@@ -1,0 +1,13 @@
+diff --git a/src/HexEditorCtrl/HexEditorCtrl.cpp b/src/HexEditorCtrl/HexEditorCtrl.cpp
+index 20e4187..74f95b4 100644
+--- a/src/HexEditorCtrl/HexEditorCtrl.cpp
++++ b/src/HexEditorCtrl/HexEditorCtrl.cpp
+@@ -271,6 +271,8 @@ void HexEditorCtrl::SetFont( ) {
+ 	newfont = wxFont(FontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, 0, wxT("Monaco"), wxFONTENCODING_ISO8859_1);// Fonts are too small on wxOSX 2.9.x series.
+ #elif defined( __WXMSW__ )
+ 	newfont = wxFont(FontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, 0, wxT("Courier New"), wxFONTENCODING_ISO8859_1);
++#elif defined( __WXOPENLAYOUT__ )
++	newfont = wxFont(FontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, 0, wxT("DejaVuSansMono"), wxFONTENCODING_ISO8859_1);	// AmigaOS: a real fixed-width face, not topaz scaled
+ #else
+ 	newfont = wxFont(FontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, 0, wxT("Monospace"), wxFONTENCODING_ISO8859_1);
+ #endif
