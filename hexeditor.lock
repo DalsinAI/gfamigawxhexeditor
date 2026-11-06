@@ -6,7 +6,7 @@ WXHE_COMMIT=f439d8f3bfbccbf7f7ec587b548a7d7421978b2f
 # Our own pieces, fetched at these commits
 # GFOpenWX Toolkit main (aui, pickers and doc/view from PR #3)
 WXT_REPO=https://github.com/DalsinAI/gfopenwxtoolkit
-WXT_COMMIT=a0b873661e0e3e0fc7753254b30538c4c21be855
+WXT_COMMIT=7fb2de8eb56eac123103f5cbff0cd787ab937268
 # fpuauto (common/fpuauto): the FPU when there is one (branch team3/fpuauto-20261105)
 FPA_REPO=https://github.com/DalsinAI/amicradle-guest
 FPA_COMMIT=4a784c84b878fe0e9abade7006e67e1ded9b165c
