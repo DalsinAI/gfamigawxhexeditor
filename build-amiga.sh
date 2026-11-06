@@ -41,7 +41,18 @@ if [ -z "${WXT_SRC:-}" ]; then fetch gfopenwxtoolkit "$WXT_REPO" "$WXT_COMMIT"; 
 WXB="$WORK/gfopenwx"
 WXREV=$( (git -C "$WXT_SRC" rev-parse HEAD 2>/dev/null; git -C "$WXT_SRC" diff HEAD 2>/dev/null) | sha256sum | cut -c1-16)
 if [ ! -x "$WXB/out/sdk/bin/wx-config" ] || [ "$(cat "$WXB/out/.rev" 2>/dev/null)" != "$WXREV" ]; then
-    STOVE="$STOVE" WORK="$WXB" OUT="$WXB/out" JOBS=$JOBS sh "$WXT_SRC/build-amiga.sh" > "$WORK.wx.log" 2>&1 || { tail -40 "$WORK.wx.log"; exit 1; }
+    # stopped here, before Cradle's own cap, so the log says how far it got
+    set +e
+    STOVE="$STOVE" WORK="$WXB" OUT="$WXB/out" JOBS=$JOBS timeout "${BUDGET_TOTAL:-840}" sh "$WXT_SRC/build-amiga.sh" > "$WORK.wx.log" 2>&1
+    rc=$?
+    set -e
+    if [ "$rc" = 124 ]; then
+        echo "toolkit: out of time after $(( $(date +%s) - t0 )) s, run again to go on"
+        echo "  base objects: $(find "$WXB/base" -name '*.o' 2>/dev/null | wc -l), GUI objects: $(find "$WXB/gui/obj" -name '*.o' 2>/dev/null | wc -l)"
+        tail -5 "$WORK.wx.log"
+        exit 0
+    fi
+    [ "$rc" = 0 ] || { tail -40 "$WORK.wx.log"; exit 1; }
     [ -x "$WXB/out/sdk/bin/wx-config" ] || { tail -40 "$WORK.wx.log"; echo "no toolkit SDK"; exit 1; }
     echo "$WXREV" > "$WXB/out/.rev"
 fi
