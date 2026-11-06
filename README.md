@@ -6,7 +6,7 @@ wxHexEditor is fetched at build time at the commit `hexeditor.lock` pins, and `p
 
 ## Status
 
-Builds and runs in a lab (6 Nov 2026): opens a file from the command line and shows its bytes. The hex columns are spaced wider than the header (a toolkit text-width matter, not this port's).
+Builds and runs in a lab (6 Nov 2026): opens a file from the command line and shows its bytes. The column headers come out in a smaller font than the hex area (the toolkit does not yet take wxStaticText fonts), so they do not line up.
 
 ## Building
 
