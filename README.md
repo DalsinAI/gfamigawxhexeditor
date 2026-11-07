@@ -47,6 +47,8 @@ ADDRESS 'WXHEXEDITOR.1'
 'GOTO' MAX(0, result - 256)
 ```
 
+`Rexx/Peek.rexx` (in the Rexx drawer beside the program) is an example.
+
 ## Licence
 
 wxHexEditor is GPL v2 or later; the patches and build files here are under the same licence.

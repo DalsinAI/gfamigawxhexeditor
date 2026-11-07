@@ -129,6 +129,8 @@ m68k-amigaos-g++ -noixemul -m68040 -specs="$HERE/scripts/m68k-soft-m68040.specs"
     -o "$O/wxHexEditor.debug" $(cd "$O" && for f in $(sed -n 's/^APPOBJS =//p' Makefile); do echo "$O/$f"; done) \
     "$O/libudis86.a" "$O/libmhash.a" $("$WXC" --libs std,aui) > "$O/link.log" 2>&1 || { head -60 "$O/link.log"; exit 1; }
 m68k-amigaos-strip -o "$OUT/wxHexEditor" "$O/wxHexEditor.debug"
+# the ARexx example (README: ARexx)
+mkdir -p "$OUT/Rexx"; cp "$HERE"/Rexx/*.rexx "$OUT/Rexx/"
 ls -l "$OUT/wxHexEditor"
 echo "fpuauto: $(m68k-amigaos-nm "$O/wxHexEditor.debug" | grep -c ' T ___wrap_') wrapped routines"
 echo "total: $(( $(date +%s) - t0 )) s"
