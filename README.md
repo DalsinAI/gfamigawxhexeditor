@@ -23,6 +23,30 @@ The first run fetches the GFOpenWX Toolkit and fpuauto at the commits `hexeditor
 | `compat/` | the stack the program asks for |
 | `scripts/` | the 68040 soft-float link specs |
 
+## ARexx
+
+wxHexEditor has an ARexx port, `WXHEXEDITOR.1` (`WXHEXEDITOR.2` for a second copy), from the GFOpenWX Toolkit's `wxARexxPort` on arexx.class (`compat/rexx_amiga.cpp`, patch 0007).
+
+| Command | Does |
+| --- | --- |
+| `OPEN FILE/A` | open a file in a new tab |
+| `SAVE` | save the front tab's file |
+| `GOTO OFFSET/A` | move the cursor to OFFSET (decimal, or `0x...` hex) |
+| `GETPOS` | RESULT: the cursor's offset |
+| `GETSIZE` | RESULT: the front tab's file length |
+| `QUIT`, `ACTIVATE`, `DEACTIVATE`, `VERSION`, `HELP`, `FAULT` | the toolkit's standard commands |
+
+RC 10 when there is no tab, or the file could not be opened or saved.
+
+```
+/* wxHexEditor: look at the end of a file */
+OPTIONS RESULTS
+ADDRESS 'WXHEXEDITOR.1'
+'OPEN Work:Data/dump.bin'
+'GETSIZE'
+'GOTO' MAX(0, result - 256)
+```
+
 ## Licence
 
 wxHexEditor is GPL v2 or later; the patches and build files here are under the same licence.

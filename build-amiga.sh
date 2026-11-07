@@ -107,9 +107,10 @@ M="$O/Makefile"
     H=""; for f in $MH; do H="$H mh_$f.o"; printf 'mh_%s.o: %s\n\tm68k-amigaos-gcc $(MHF) -MMD -c $< -o $@\n' "$f" "$SRC/mhash/lib/$f.c"; done
     A=""; for f in $APP; do o="app_$(echo "$f" | tr / _).o"; A="$A $o"; printf '%s: %s\n\tm68k-amigaos-g++ $(CXXF) -MMD -c $< -o $@\n' "$o" "$SRC/src/$f.cpp"; done
     printf 'amiga_stack.o: %s\n\tm68k-amigaos-gcc $(UDF) -c $< -o $@\n' "$HERE/compat/amiga_stack.c"
+    printf 'rexx_amiga.o: %s\n\tm68k-amigaos-g++ $(CXXF) -I%s -MMD -c $< -o $@\n' "$HERE/compat/rexx_amiga.cpp" "$SRC/src"
     echo "libudis86.a:$U"; printf '\trm -f $@; m68k-amigaos-ar rcs $@ $^\n'
     echo "libmhash.a:$H"; printf '\trm -f $@; m68k-amigaos-ar rcs $@ $^\n'
-    echo "APPOBJS =$A amiga_stack.o"
+    echo "APPOBJS =$A amiga_stack.o rexx_amiga.o"
     echo "all: libudis86.a libmhash.a \$(APPOBJS)"
     echo "-include *.d"
 } > "$M"
