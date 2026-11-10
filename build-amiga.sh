@@ -90,6 +90,13 @@ if [ "$(cat "$SRC/.patched" 2>/dev/null)" != "$WXHE_COMMIT-$PSUM" ]; then
     rm -rf "$WORK/obj"
 fi
 
+# objects made against another toolkit commit go (ARexx rule 7): its
+# headers are not in the make rules, and stale objects crash at start
+# (gfamigagolly #3)
+if [ "$(cat "$WORK/.toolkit-objs" 2>/dev/null)" != "$WXT_COMMIT" ]; then
+    rm -rf "$WORK/obj"
+    echo "$WXT_COMMIT" > "$WORK/.toolkit-objs"
+fi
 # --- one Makefile: udis86, mhash, the program --------------------------------
 LATE=""
 if m68k-amigaos-gcc -fno-late-combine-instructions -S -o /dev/null -x c /dev/null 2>/dev/null; then LATE="-fno-late-combine-instructions"; fi
@@ -131,6 +138,7 @@ m68k-amigaos-g++ -noixemul -m68040 -specs="$HERE/scripts/m68k-soft-m68040.specs"
 m68k-amigaos-strip -o "$OUT/wxHexEditor" "$O/wxHexEditor.debug"
 # the ARexx example (README: ARexx)
 mkdir -p "$OUT/Rexx"; cp "$HERE"/Rexx/*.rexx "$OUT/Rexx/"
+mkdir -p "$OUT/tests"; cp "$HERE/tests/arexx.rexx" "$OUT/tests/"   # the ARexx port test
 ls -l "$OUT/wxHexEditor"
 echo "fpuauto: $(m68k-amigaos-nm "$O/wxHexEditor.debug" | grep -c ' T ___wrap_') wrapped routines"
 echo "total: $(( $(date +%s) - t0 )) s"
