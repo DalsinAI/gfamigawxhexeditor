@@ -34,7 +34,8 @@ wxHexEditor has an ARexx port, `WXHEXEDITOR.1` (`WXHEXEDITOR.2` for a second cop
 | `GOTO OFFSET/A` | move the cursor to OFFSET (decimal, or `0x...` hex) |
 | `GETPOS` | RESULT: the cursor's offset |
 | `GETSIZE` | RESULT: the front tab's file length |
-| `QUIT`, `ACTIVATE`, `DEACTIVATE`, `VERSION`, `HELP`, `FAULT` | the toolkit's standard commands |
+| `QUIT FORCE/S` | close the window (FORCE: and end, unsaved work or not); a file requester that is open is cancelled first, and the window closes after it |
+| `ACTIVATE`, `DEACTIVATE`, `VERSION`, `HELP`, `FAULT` | the toolkit's standard commands |
 
 RC 10 when there is no tab, or the file could not be opened or saved.
 
