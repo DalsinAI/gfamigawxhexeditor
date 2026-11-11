@@ -1,0 +1,18 @@
+AmigaOS: the read-only menu tick no longer yields from inside a yield (it recursed after OPEN until the stack ran out).
+
+--- a/src/HexEditorFrame.cpp	2026-11-11 01:45:55.460379092 +0000
++++ b/src/HexEditorFrame.cpp	2026-11-11 01:45:55.499008552 +0000
+@@ -1081,7 +1081,13 @@
+ #endif // _DEBUG_
+ 					break;
+ 				}
++#ifdef __AMIGA__
++			// Not from inside a yield: GFOpenWX updates menus at idle time, and a
++			// yield runs the idle handlers, so wxYield here recursed until the stack ran out.
++			wxTheApp->Yield(true);
++#else
+ 			wxYield();//Sometime, evenif you make mbar->Check(idFileRO, true), display is not updated. It's because wxYield req.
++#endif
+ 			}
+ 
+ 		if( event.GetId() == RESET_STYLE_EVENT ) {

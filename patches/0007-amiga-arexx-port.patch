@@ -1,0 +1,17 @@
+AmigaOS: the ARexx port WXHEXEDITOR.1 opens with the main window (compat/rexx_amiga.cpp).
+
+--- a/src/HexEditorApp.cpp	2026-11-07 13:50:47.327535831 +0000
++++ b/src/HexEditorApp.cpp	2026-11-07 13:50:47.354722614 +0000
+@@ -131,6 +131,12 @@
+ #endif // wxUSE_IPC
+ 
+ 	frame = new HexEditorFrame( 0L );
++#ifdef __AMIGA__
++	{
++		extern void AmigaRexxStart(HexEditorFrame *f); // compat/rexx_amiga.cpp
++		AmigaRexxStart(frame);
++	}
++#endif
+ 	// frame->Connect( wxEVT_MOTION,	wxMouseEventHandler(wxHexEditorApp::OnMouseMove),NULL, this);
+ 	frame->Show();
+ 	wxYield();

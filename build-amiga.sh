@@ -90,6 +90,13 @@ if [ "$(cat "$SRC/.patched" 2>/dev/null)" != "$WXHE_COMMIT-$PSUM" ]; then
     rm -rf "$WORK/obj"
 fi
 
+# objects made against another toolkit commit go (ARexx rule 7): its
+# headers are not in the make rules, and stale objects crash at start
+# (gfamigagolly #3)
+if [ "$(cat "$WORK/.toolkit-objs" 2>/dev/null)" != "$WXT_COMMIT" ]; then
+    rm -rf "$WORK/obj"
+    echo "$WXT_COMMIT" > "$WORK/.toolkit-objs"
+fi
 # --- one Makefile: udis86, mhash, the program --------------------------------
 LATE=""
 if m68k-amigaos-gcc -fno-late-combine-instructions -S -o /dev/null -x c /dev/null 2>/dev/null; then LATE="-fno-late-combine-instructions"; fi
@@ -107,9 +114,10 @@ M="$O/Makefile"
     H=""; for f in $MH; do H="$H mh_$f.o"; printf 'mh_%s.o: %s\n\tm68k-amigaos-gcc $(MHF) -MMD -c $< -o $@\n' "$f" "$SRC/mhash/lib/$f.c"; done
     A=""; for f in $APP; do o="app_$(echo "$f" | tr / _).o"; A="$A $o"; printf '%s: %s\n\tm68k-amigaos-g++ $(CXXF) -MMD -c $< -o $@\n' "$o" "$SRC/src/$f.cpp"; done
     printf 'amiga_stack.o: %s\n\tm68k-amigaos-gcc $(UDF) -c $< -o $@\n' "$HERE/compat/amiga_stack.c"
+    printf 'rexx_amiga.o: %s\n\tm68k-amigaos-g++ $(CXXF) -I%s -MMD -c $< -o $@\n' "$HERE/compat/rexx_amiga.cpp" "$SRC/src"
     echo "libudis86.a:$U"; printf '\trm -f $@; m68k-amigaos-ar rcs $@ $^\n'
     echo "libmhash.a:$H"; printf '\trm -f $@; m68k-amigaos-ar rcs $@ $^\n'
-    echo "APPOBJS =$A amiga_stack.o"
+    echo "APPOBJS =$A amiga_stack.o rexx_amiga.o"
     echo "all: libudis86.a libmhash.a \$(APPOBJS)"
     echo "-include *.d"
 } > "$M"
@@ -128,6 +136,9 @@ m68k-amigaos-g++ -noixemul -m68040 -specs="$HERE/scripts/m68k-soft-m68040.specs"
     -o "$O/wxHexEditor.debug" $(cd "$O" && for f in $(sed -n 's/^APPOBJS =//p' Makefile); do echo "$O/$f"; done) \
     "$O/libudis86.a" "$O/libmhash.a" $("$WXC" --libs std,aui) > "$O/link.log" 2>&1 || { head -60 "$O/link.log"; exit 1; }
 m68k-amigaos-strip -o "$OUT/wxHexEditor" "$O/wxHexEditor.debug"
+# the ARexx example (README: ARexx)
+mkdir -p "$OUT/Rexx"; cp "$HERE"/Rexx/*.rexx "$OUT/Rexx/"
+mkdir -p "$OUT/tests"; cp "$HERE/tests/arexx.rexx" "$OUT/tests/"   # the ARexx port test
 ls -l "$OUT/wxHexEditor"
 echo "fpuauto: $(m68k-amigaos-nm "$O/wxHexEditor.debug" | grep -c ' T ___wrap_') wrapped routines"
 echo "total: $(( $(date +%s) - t0 )) s"
