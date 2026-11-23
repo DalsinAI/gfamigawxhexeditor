@@ -10,6 +10,8 @@
 # Copyright (c) 2026 AmiCradle Team. GPL 2 or later, like wxHexEditor.
 set -eu
 HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# DalsinAI's private repositories from the git mirror where there is one (GF-88)
+. "$HERE/scripts/git-mirror.sh"
 . "$HERE/hexeditor.lock"
 STOVE=${STOVE:-"$HOME/AmiCradle/stoves/os32-gcc16-open6"}
 # outside the checkout: Cradle cleans it (git clean -ffdx) before every job
