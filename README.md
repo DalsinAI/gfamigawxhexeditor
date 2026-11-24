@@ -4,6 +4,10 @@ wxHexEditor for AmigaOS 3 (68040, soft float with the FPU taken when there is on
 
 wxHexEditor is fetched at build time at the commit `hexeditor.lock` pins, and `patches/` is applied to it; nothing third-party is kept in this repository. The mhash and udis86 libraries come from wxHexEditor's own tree.
 
+## Needs
+
+`gfopenlayout.library` 12 or later in `LIBS:`. wxHexEditor's windows are drawn by GFOpenLayout through that library, not a copy built into the program (GFOffice Libs ships version 25). Without it wxHexEditor says "This needs gfopenlayout.library 12 or later in LIBS:" and stops.
+
 ## Status
 
 Builds and runs in a lab (6 Nov 2026): opens a file from the command line and shows its bytes. The column headers come out in a smaller font than the hex area (the toolkit does not yet take wxStaticText fonts), so they do not line up.

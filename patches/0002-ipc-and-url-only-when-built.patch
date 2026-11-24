@@ -22,7 +22,7 @@ index f3d3edd..766b398 100644
  	SetLanguage();
  	bool SingleInstance;
  	myConfigBase::Get()->Read( _T("SingleInstance"), &SingleInstance, false );
-+#if wxUSE_IPC
++#if wxUSE_IPC && wxUSE_SNGLINST_CHECKER
  	if( SingleInstance ) {
  		wxSingleInstanceChecker* m_checker = new wxSingleInstanceChecker;
  		if ( m_checker->IsAnotherRunning() ) {
@@ -30,7 +30,7 @@ index f3d3edd..766b398 100644
  			Exit();
  			}
  		}
-+#endif // wxUSE_IPC
++#endif // wxUSE_IPC && wxUSE_SNGLINST_CHECKER
  
  	frame = new HexEditorFrame( 0L );
  	// frame->Connect( wxEVT_MOTION,	wxMouseEventHandler(wxHexEditorApp::OnMouseMove),NULL, this);
